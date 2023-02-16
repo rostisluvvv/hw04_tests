@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}О технологиях проекта{% endblock %}
+{% block content %}
+
+<h3>На этой странице я расскажу о технологиях проекта</h3>
+
+<div class="container py-5 h-100">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col col-lg-10 mb-4 mb-lg-0">
+      <div class="card mb-3" style="border-radius: .5rem;">
+        <div class="row g-0">
+          <div class="col-md-4 gradient-custom text-center text-black"
+               style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+            <img src="/static/img/about/IMG_1562.JPG"
+                 alt="Avatar" class="img-fluid my-5"
+                 style="width: 200px; border-radius: 180px"/>
+            <h5>Rostitlsv Uspasskiy</h5>
+            <h6>Python Developer</h6>
+            <i class="far fa-edit mb-5"></i>
+          </div>
+          <div class="col-md-8">
+            <div class="card-body p-4">
+              <h6>STACK</h6>
+              <hr class="mt-0 mb-4">
+              <div class="row pt-1">
+                <div class="col-6 mb-3">
+                  <p class="text-muted">
+                  <ul>DJANGO</ul>
+                  <ul>CSS</ul>
+                  <ul>HTML</ul>
+                  <ul>JS</ul>
+                  <ul>Bootstrap</ul>
+                  </p>
+                </div>
+              </div>
+              <hr class="mt-0 mb-4">
+              <p class="text-muted">
+                Благодаря этому спринту я нашел свои пробелы в знаниях,
+                например я даже не знал отличия forms.Form vs
+                forms.ModelForm, но были и моменты с которыми я уже работал
+                самостоятельно и выполняя этот спринт закрепил знания
+              </p>
+              <div class="row pt-2">
+
+              </div>
+              <div class="d-flex justify-content-start">
+                <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
+                <a href="#!"><i class="fab fa-twitter fa-lg me-3"></i></a>
+                <a href="#!"><i class="fab fa-instagram fa-lg"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

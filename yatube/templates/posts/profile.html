@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Профайл пользователя {{ username }}
+{% endblock %}
+
+{% block content %}
+
+<h1>Все посты пользователя {{ author }} </h1>
+
+<h3>Всего постов: {{ count_posts }} </h3>
+
+{% for post in page_obj %}
+{% include 'posts/includes/single_post.html' %}
+
+{% if post.group %}
+<p><a href="{% url 'posts:group_list' post.group.slug %}">все записи
+  группы</a></p>
+{% endif %}
+{% if not forloop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+<!-- Остальные посты. после последнего нет черты -->
+{% include 'posts/includes/paginator.html' %}
+
+{% endblock  %}
