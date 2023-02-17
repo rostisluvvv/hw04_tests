@@ -79,8 +79,6 @@ class PostsURLTests(TestCase):
                 response = self.not_author_client.get(address)
                 self.assertRedirects(response, redirect_address)
 
-
-
     def test_redirect_guest_client(self):
         redirect_create_url = '/auth/login/?next=/create/'
         redirect_edit_url = f'/auth/login/?next=/posts/{self.post.pk}/edit/'
