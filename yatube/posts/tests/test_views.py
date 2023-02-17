@@ -24,7 +24,7 @@ class PostPagesTest(TestCase):
         self.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
-            description='Тестовое описание'
+            description='Тестовое описание группы'
         )
         self.post = Post.objects.create(
             author=self.user,
@@ -96,12 +96,17 @@ class PostPagesTest(TestCase):
         response = self.client.get(
             reverse('posts:group_list', kwargs={'slug': self.group.slug}))
         first_object = response.context['group']
-        group_title_0 = first_object.title
-        group_slug_0 = first_object.slug
-        group_description_0 = first_object.description
-        self.assertEqual(group_title_0, 'Тестовая группа')
-        self.assertEqual(group_slug_0, 'test-slug')
-        self.assertEqual(group_description_0, 'Тестовое описание')
+
+        group_posts: dict = {
+            first_object.title: 'Тестовая группа',
+            first_object.slug: 'test-slug',
+            first_object.description: 'Тестовое описание группы',
+        }
+
+        for field, test_value in group_posts.items():
+            with self.subTest(field=field):
+                self.assertEqual(field, test_value)
+
         self.assertEqual(
             response.context.get('page_obj')[0].group, self.group)
 
@@ -127,27 +132,30 @@ class PostPagesTest(TestCase):
         for value, expected in form_fields.items():
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
-                print(form_field, expected)
                 self.assertIsInstance(form_field, expected)
 
     def test_post_edit_form(self):
         response = self.authorized_client.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
+        is_edit = response.context['is_edit']
+        self.assertTrue(is_edit)
+        self.assertIsInstance(is_edit, bool)
         form = response.context['form'].instance
+
+        print(form)
+        print(self.post)
         self.assertEqual(form, self.post)
 
     def test_post_form(self):
         response = self.authorized_client.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         form = response.context['form']
-        self.assertIsInstance(form, PostForm)
-
-
-TEST_OF_POST: int = 13
-COUNT_POST_SECOND_PAGE: int = TEST_OF_POST - settings.COUNT_POSTS
+        self.assertIn(form, PostForm)
 
 
 class PaginatorViewTest(TestCase):
+    TEST_OF_POST: int = 13
+    COUNT_POST_SECOND_PAGE: int = TEST_OF_POST - settings.COUNT_POSTS
 
     def setUp(self) -> None:
         self.user = User.objects.create_user(username='NoName')
@@ -158,7 +166,7 @@ class PaginatorViewTest(TestCase):
             slug='test-slug'
         )
         blank_post: list = []
-        for i in range(TEST_OF_POST):
+        for i in range(self.TEST_OF_POST):
             blank_post.append(Post(text=f'test text {i}',
                                    group=self.group,
                                    author=self.user))
@@ -170,9 +178,10 @@ class PaginatorViewTest(TestCase):
                          settings.COUNT_POSTS)
 
     def test_index_second_page_contains_three_records(self):
-        response = self.client.get(reverse('posts:index') + '?page=2')
+        params = {'page': 2}
+        response = self.client.get(reverse('posts:index'), params)
         self.assertEqual(len(response.context['page_obj']),
-                         COUNT_POST_SECOND_PAGE)
+                         self.COUNT_POST_SECOND_PAGE)
 
     def test_group_first_page_contains_ten_records_group(self):
         response = self.authorized_client.get(
@@ -181,22 +190,24 @@ class PaginatorViewTest(TestCase):
                          settings.COUNT_POSTS)
 
     def test_group_second_page_contains_three_records(self):
+        params = {'page': 2}
         response = self.authorized_client.get(
             reverse('posts:group_list',
-                    kwargs={'slug': self.group.slug}) + '?page=2')
+                    kwargs={'slug': self.group.slug}), params)
         self.assertEqual(len(response.context['page_obj']),
-                         COUNT_POST_SECOND_PAGE)
+                         self.COUNT_POST_SECOND_PAGE)
 
-    def test_profile_page_contains_ten_records_group(self):
+    def test_profile_first_page_contains_ten_records_group(self):
         response = self.authorized_client.get(
             reverse('posts:profile',
                     kwargs={'username': self.user.username}))
         self.assertEqual(len(response.context['page_obj']),
                          settings.COUNT_POSTS)
 
-    def test_profile_page_contains_three_records(self):
+    def test_profile_second_page_contains_three_records(self):
+        params = {'page': 2}
         response = self.authorized_client.get(reverse(
             'posts:profile',
-            kwargs={'username': self.user.username}) + '?page=2')
+            kwargs={'username': self.user.username}), params)
         self.assertEqual(len(response.context['page_obj']),
-                         COUNT_POST_SECOND_PAGE)
+                         self.COUNT_POST_SECOND_PAGE)
