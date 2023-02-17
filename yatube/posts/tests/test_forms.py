@@ -54,7 +54,8 @@ class PostCreateFormTests(TestCase):
 
     def test_post_edit(self):
         post_count = Post.objects.count()
-        old_text = self.post
+        old_text = self.post.text
+
         editable_fields = {
             'text': 'редактированный текст поста',
             'group': self.post.group.pk
@@ -63,7 +64,6 @@ class PostCreateFormTests(TestCase):
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
             data=editable_fields)
         new_text = editable_fields['text']
-
 
         self.assertEqual(Post.objects.count(), post_count)
 
