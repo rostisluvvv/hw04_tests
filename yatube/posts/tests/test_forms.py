@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
-from ..models import Post, Group
 from django.urls import reverse
+
+from ..models import Post, Group
 
 
 User = get_user_model()
@@ -52,6 +53,7 @@ class PostCreateFormTests(TestCase):
         )
 
     def test_post_edit(self):
+        post_count = Post.objects.count()
         old_text = self.post
         editable_fields = {
             'text': 'редактированный текст поста',
@@ -61,6 +63,9 @@ class PostCreateFormTests(TestCase):
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
             data=editable_fields)
         new_text = editable_fields['text']
+
+
+        self.assertEqual(Post.objects.count(), post_count)
 
         self.assertRedirects(
             response, reverse(
