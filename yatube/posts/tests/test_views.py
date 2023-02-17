@@ -147,7 +147,7 @@ class PostPagesTest(TestCase):
         response = self.authorized_client.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         form = response.context['form']
-        self.assertIn(form, PostForm)
+        self.assertIsInstance(form, PostForm)
 
 
 class PaginatorViewTest(TestCase):
