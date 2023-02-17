@@ -60,10 +60,6 @@ class PostPagesTest(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_post_added_correctly(self):
-        post = Post.objects.create(
-            author=self.user,
-            text='Тестовое описание поста',
-            group=self.group)
         response_index = self.authorized_client.get(reverse('posts:index'))
 
         response_group = self.authorized_client.get(
@@ -77,9 +73,16 @@ class PostPagesTest(TestCase):
         index = response_index.context['page_obj']
         group = response_group.context['page_obj']
         profile = response_profile.context['page_obj']
-        self.assertIn(post, index)
-        self.assertIn(post, group)
-        self.assertIn(post, profile)
+
+        reverse_name_context: dict = {
+            response_index: index,
+            response_group: group,
+            response_profile: profile
+        }
+        for response_name, context in reverse_name_context.items():
+            with self.subTest(response_name=response_name):
+
+                self.assertIn(self.post, context)
 
     def test_index_context(self):
         response = self.authorized_client.get(reverse('posts:index'))

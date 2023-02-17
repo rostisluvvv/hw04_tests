@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
+
 from http import HTTPStatus
 
 from ..models import Post, Group
@@ -14,11 +15,14 @@ class PostsURLTests(TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
+        cls.user_not_author = User.objects.create_user(username='not_author')
 
     def setUp(self):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.not_author_client = Client()
+        self.not_author_client.force_login(self.user_not_author)
         self.group = Group.objects.create(
             title='Тестовая группа',
             slug='test_group',
@@ -43,26 +47,43 @@ class PostsURLTests(TestCase):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)
 
-    def test_urls(self):
+    def test_urls_authorized_client_status_ok(self):
         url_names: tuple = (
-            '/',
-            f'/group/{self.group.slug}/',
-            f'/profile/{self.user.username}/',
-            f'/posts/{self.post.id}/',
             f'/posts/{self.post.id}/edit/',
             '/create/'
         )
         for address in url_names:
             with self.subTest(address=address):
-                if 'edit' or 'create' in address:
-                    response = self.authorized_client.get(address)
-                else:
-                    response = self.guest_client.get(address)
+                response = self.authorized_client.get(address)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_urls_guest_client_status_ok(self):
+        url_names: tuple = (
+            '/',
+            f'/group/{self.group.slug}/',
+            f'/profile/{self.user.username}/',
+            f'/posts/{self.post.id}/',
+        )
+        for address in url_names:
+            with self.subTest(address=address):
+                response = self.guest_client.get(address)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_redirect_edit_not_author(self):
+
+        redirect_pages: dict = {
+            f'/posts/{self.post.pk}/edit/': f'/posts/{self.post.pk}/'
+        }
+        for address, redirect_address in redirect_pages.items():
+            with self.subTest(address=address):
+                response = self.not_author_client.get(address)
+                self.assertRedirects(response, redirect_address)
+
+
 
     def test_redirect_guest_client(self):
         redirect_create_url = '/auth/login/?next=/create/'
-        redirect_edit_url = f'/auth/login/?next=/posts/{self.post.id}/edit/'
+        redirect_edit_url = f'/auth/login/?next=/posts/{self.post.pk}/edit/'
 
         pages: dict = {
             '/create/': redirect_create_url,

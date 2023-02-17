@@ -22,7 +22,7 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост'
+            text='ж'*100
         )
 
     def test_models_have_correct_object_names(self):
@@ -32,7 +32,7 @@ class PostModelTest(TestCase):
 
         str_tests = {
             str(group): group.title,
-            str(post)[:15]: post.text[:15]
+            str(post): post.text[:15]
         }
 
         for model_field, expected_value in str_tests.items():
