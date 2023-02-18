@@ -1,7 +1,7 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
-
-from http import HTTPStatus
 
 from ..models import Post, Group
 
@@ -70,7 +70,6 @@ class PostsURLTests(TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_redirect_edit_not_author(self):
-
         redirect_pages: dict = {
             f'/posts/{self.post.pk}/edit/': f'/posts/{self.post.pk}/'
         }
