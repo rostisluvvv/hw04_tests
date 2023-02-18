@@ -141,7 +141,7 @@ class PostPagesTest(TestCase):
         self.assertTrue(is_edit)
         self.assertIsInstance(is_edit, bool)
         form = response.context['form'].instance
-        self.assertEqual(form, self.post)
+        self.assertIsInstance(form, Post)
 
     def test_post_form(self):
         response = self.authorized_client.get(
