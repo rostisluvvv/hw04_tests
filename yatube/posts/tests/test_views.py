@@ -11,11 +11,6 @@ from ..forms import PostForm
 User = get_user_model()
 
 
-def get_context(response, value):
-    response = response.context.get('form').fields.get(value)
-    return response
-
-
 class PostPagesTest(TestCase):
 
     @classmethod
@@ -40,6 +35,10 @@ class PostPagesTest(TestCase):
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField
         }
+
+    def check_form_fields(self, response, value, expected):
+        form_field = response.context.get('form').fields.get(value)
+        self.assertIsInstance(form_field, expected)
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -137,8 +136,7 @@ class PostPagesTest(TestCase):
         response = self.authorized_client.get(reverse('posts:post_create'))
         for value, expected in self.form_fields.items():
             with self.subTest(value=value):
-                form_field = form_field = get_context(response, value)
-                self.assertIsInstance(form_field, expected)
+                self.check_form_fields(response, value, expected)
         form = response.context['form']
         self.assertIsInstance(form, PostForm)
 
@@ -147,8 +145,7 @@ class PostPagesTest(TestCase):
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         for value, expected in self.form_fields.items():
             with self.subTest(value=value):
-                form_field = get_context(response, value)
-                self.assertIsInstance(form_field, expected)
+                self.check_form_fields(response, value, expected)
         is_edit = response.context['is_edit']
         self.assertTrue(is_edit)
         self.assertIsInstance(is_edit, bool)
