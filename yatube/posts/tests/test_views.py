@@ -11,6 +11,11 @@ from ..forms import PostForm
 User = get_user_model()
 
 
+def get_context(response, value):
+    response = response.context.get('form').fields.get(value)
+    return response
+
+
 class PostPagesTest(TestCase):
 
     @classmethod
@@ -30,6 +35,11 @@ class PostPagesTest(TestCase):
             author=self.user,
             text='Тестовое описание поста',
             group=self.group)
+
+        self.form_fields: dict = {
+            'text': forms.fields.CharField,
+            'group': forms.fields.ChoiceField
+        }
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -123,29 +133,25 @@ class PostPagesTest(TestCase):
             response.context.get('posts_detail').id, self.post.pk
         )
 
-    def test_post_create_or_edit_form(self):
+    def test_post_create_form(self):
         response = self.authorized_client.get(reverse('posts:post_create'))
-        form_fields: dict = {
-            'text': forms.fields.CharField,
-            'group': forms.fields.ChoiceField
-        }
-        for value, expected in form_fields.items():
+        for value, expected in self.form_fields.items():
             with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
+                form_field = form_field = get_context(response, value)
                 self.assertIsInstance(form_field, expected)
+        form = response.context['form']
+        self.assertIsInstance(form, PostForm)
 
     def test_post_edit_form(self):
         response = self.authorized_client.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
+        for value, expected in self.form_fields.items():
+            with self.subTest(value=value):
+                form_field = get_context(response, value)
+                self.assertIsInstance(form_field, expected)
         is_edit = response.context['is_edit']
         self.assertTrue(is_edit)
         self.assertIsInstance(is_edit, bool)
-        form_instance = response.context['form'].instance
-        self.assertIsInstance(form_instance, Post)
-
-    def test_post_form(self):
-        response = self.authorized_client.get(
-            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         form = response.context['form']
         self.assertIsInstance(form, PostForm)
 
