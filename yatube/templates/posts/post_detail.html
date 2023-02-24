@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load thumbnail %}
 
 {% block title %}
 Пост {{ posts_detail.text|truncatechars:30 }}
@@ -16,7 +17,7 @@
 
       {% if posts_detail.group %}
       <li class="list-group-item">
-        Группа: <!-- Название группы -->
+        Группа:
         <a href="{% url 'posts:group_list' posts_detail.group.slug %}">
           {{ posts_detail.group.title }}
         </a>
