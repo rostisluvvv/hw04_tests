@@ -59,4 +59,3 @@ class Comment(models.Model):
     )
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-

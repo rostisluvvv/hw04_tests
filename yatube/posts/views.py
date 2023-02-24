@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
 from .models import Post, Group, User
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 from django.conf import settings
 
 
@@ -52,7 +52,9 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     posts_detail = get_object_or_404(Post, pk=post_id)
-    context = {'posts_detail': posts_detail}
+    context = {
+        'posts_detail': posts_detail,
+    }
     return render(request, 'posts/post_detail.html', context)
 
 
@@ -89,3 +91,16 @@ def post_edit(request, post_id):
     }
     template_name = 'posts/create_post.html'
     return render(request, template_name, context)
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    return redirect('post:post_detail', post_id=post_id)
+
