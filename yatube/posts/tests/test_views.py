@@ -129,8 +129,8 @@ class PostPagesTest(TestCase):
 
         self.assertEqual(response.context.get('page_obj')[0].author,
                          self.user)
-
-        self.assertIsNotNone(response.context.get('page_obj')[0].image)
+        self.assertEqual(response.context.get('page_obj')[0].image,
+                         self.post.image)
 
     def test_group_posts_context(self):
         response = self.client.get(
@@ -150,7 +150,8 @@ class PostPagesTest(TestCase):
         self.assertEqual(
             response.context.get('page_obj')[0].group, self.group)
 
-        self.assertIsNotNone(response.context.get('page_obj')[0].image)
+        self.assertEqual(response.context.get('page_obj')[0].image,
+                         self.post.image)
 
     def test_profile_context(self):
         response = self.client.get(
@@ -158,7 +159,8 @@ class PostPagesTest(TestCase):
         self.assertEqual(
             response.context.get('page_obj')[0].author, self.user)
 
-        self.assertIsNotNone(response.context.get('page_obj')[0].image)
+        self.assertEqual(response.context.get('page_obj')[0].image,
+                         self.post.image)
 
     def test_post_detail_context(self):
         response = self.client.get(
@@ -166,7 +168,8 @@ class PostPagesTest(TestCase):
         self.assertEqual(
             response.context.get('posts_detail').id, self.post.pk
         )
-        self.assertIsNotNone(response.context.get('posts_detail').image)
+        self.assertEqual(response.context.get('posts_detail').image,
+                         self.post.image)
 
     def test_post_create_form(self):
         response = self.authorized_client.get(reverse('posts:post_create'))
