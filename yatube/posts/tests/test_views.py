@@ -1,4 +1,3 @@
-from http import HTTPStatus
 import shutil
 import tempfile
 
@@ -129,6 +128,7 @@ class PostPagesTest(TestCase):
 
         self.assertEqual(response.context.get('page_obj')[0].author,
                          self.user)
+
         self.assertEqual(response.context.get('page_obj')[0].image,
                          self.post.image)
 
