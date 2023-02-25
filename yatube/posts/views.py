@@ -25,7 +25,6 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-
     post_list = group.posts.all()
     page_obj = pagination(request, post_list)
     context = {
@@ -52,8 +51,12 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     posts_detail = get_object_or_404(Post, pk=post_id)
+    comment_form = CommentForm(request.POST or None)
+    comment = posts_detail.comments.all()
     context = {
         'posts_detail': posts_detail,
+        'comment_form': comment_form,
+        'comment': comment,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -103,4 +106,3 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect('post:post_detail', post_id=post_id)
-
