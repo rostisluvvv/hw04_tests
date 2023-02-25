@@ -52,11 +52,11 @@ def profile(request, username):
 def post_detail(request, post_id):
     posts_detail = get_object_or_404(Post, pk=post_id)
     comment_form = CommentForm(request.POST or None)
-    comment = posts_detail.comments.all()
+    comments = posts_detail.comments.all()
     context = {
         'posts_detail': posts_detail,
         'comment_form': comment_form,
-        'comment': comment,
+        'comments': comments,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -105,4 +105,4 @@ def add_comment(request, post_id):
         comment.author = request.user
         comment.post = post
         comment.save()
-    return redirect('post:post_detail', post_id=post_id)
+    return redirect('posts:post_detail', post_id=post_id)
