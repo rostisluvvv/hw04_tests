@@ -1,14 +1,15 @@
+from http import HTTPStatus
 import shutil
 import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django import forms
 from django.conf import settings
 
-from ..models import Post, Group
+from ..models import Post, Group, Comment
 from ..forms import PostForm
 
 
@@ -17,6 +18,7 @@ User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostPagesTest(TestCase):
 
     @classmethod
@@ -56,9 +58,7 @@ class PostPagesTest(TestCase):
             text='Тестовое описание поста',
             group=self.group,
             image=uploaded
-
         )
-
         self.form_fields: dict = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
@@ -190,6 +190,18 @@ class PostPagesTest(TestCase):
         self.assertIsInstance(is_edit, bool)
         form = response.context['form']
         self.assertIsInstance(form, PostForm)
+
+    def test_comment_added_only_auth_authorized_client(self):
+        count_comment = Comment.objects.count()
+        form_data = {
+            'text': 'test comment 2'
+        }
+        response = self.client.post(reverse(
+            'posts:add_comment',
+            kwargs={'post_id': self.post.pk}),
+            data=form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Comment.objects.count(), count_comment)
 
 
 class PaginatorViewTest(TestCase):

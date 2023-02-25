@@ -3,23 +3,24 @@ import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.conf import settings
 
-from ..models import Post, Group
+from ..models import Post, Group, Comment
 
 
 User = get_user_model()
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
+
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostCreateFormTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
 
     @classmethod
     def tearDownClass(cls):
@@ -57,9 +58,6 @@ class PostCreateFormTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-
-
-
     def test_create_post(self):
         count_post = Post.objects.count()
         form_data = {
@@ -68,7 +66,6 @@ class PostCreateFormTests(TestCase):
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'), data=form_data)
-
         self.assertRedirects(response, reverse(
             'posts:profile', kwargs={'username': self.user.username}))
 
@@ -103,3 +100,41 @@ class PostCreateFormTests(TestCase):
                 'posts:post_detail', kwargs={'post_id': self.post.pk}))
 
         self.assertNotEqual(old_text, new_text)
+
+
+class CommentFormTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='NoName')
+        self.guest_client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+        self.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test-slug',
+            description='Тестовое описание'
+        )
+        self.post = Post.objects.create(
+            author=self.user,
+            text='Тестовое описание поста',
+            group=self.group
+        )
+        self.comment = Comment.objects.create(
+            post=self.post,
+            author=self.user,
+            text='test comment 1'
+        )
+
+    def test_added_comment(self):
+        count_comment = Comment.objects.count()
+        form_data = {
+            'text': 'test comment 2'
+        }
+        self.authorized_client.post(reverse(
+            'posts:add_comment',
+            kwargs={'post_id': self.post.pk}),
+            data=form_data)
+        self.assertEqual(Comment.objects.count(), count_comment + 1)
