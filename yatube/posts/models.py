@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from ..core.models import PubDateModels
+from core.models import PubDateModels
 
 User = get_user_model()
 
@@ -45,7 +45,7 @@ class Post(PubDateModels):
         return self.text[:15]
 
 
-class Comment(models.Model):
+class Comment(PubDateModels):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
@@ -60,4 +60,3 @@ class Comment(models.Model):
     )
     text = models.TextField('Comment of post',
                             help_text='Enter a comment to the post')
-    created = models.DateTimeField(auto_now_add=True)
