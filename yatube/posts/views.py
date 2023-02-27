@@ -14,7 +14,6 @@ def pagination(request, post_list):
     return paginator.get_page(page_number)
 
 
-# @cache_page(200)
 def index(request):
     post_list = Post.objects.all()
     page_obj = pagination(request, post_list)
