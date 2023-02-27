@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
+from django.core.paginator import Paginator
 
 from .models import Post, Group, User
 from .forms import PostForm, CommentForm
@@ -13,6 +14,7 @@ def pagination(request, post_list):
     return paginator.get_page(page_number)
 
 
+# @cache_page(200)
 def index(request):
     post_list = Post.objects.all()
     page_obj = pagination(request, post_list)

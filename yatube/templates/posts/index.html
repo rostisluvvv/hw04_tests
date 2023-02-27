@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
+{% load cache %}
 
 {% block title %}
   Последние обновления на сайте
 {% endblock %}
 
+
+
 {% block content %}
 <h1>Последние обновления на сайте</h1>
-
+{% cache 20 index_page %}
 {% for post in page_obj %}
 {% include 'posts/includes/single_post.html' %}
 
@@ -21,8 +24,10 @@
 
 {% endfor %}
 
-{% include 'posts/includes/paginator.html' %}
+{% endcache %}
 
+{% include 'posts/includes/paginator.html' %}
 {% endblock %}
+
 
 
