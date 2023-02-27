@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from ..core.models import PubDateModels
+
 User = get_user_model()
 
 
@@ -13,13 +15,12 @@ class Group(models.Model):
         return self.title
 
 
-class Post(models.Model):
+class Post(PubDateModels):
     text = models.TextField(
         'Текст поста',
         help_text='Введите текст поста',
         max_length=200
     )
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
