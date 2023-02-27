@@ -57,5 +57,6 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    text = models.TextField()
+    text = models.TextField('Comment of post',
+                            help_text='Enter a comment to the post')
     created = models.DateTimeField(auto_now_add=True)

@@ -22,5 +22,3 @@ class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
-        labels = {'text': _('Comment of post')}
-        help_text = {'text': _('Enter a comment to the post')}

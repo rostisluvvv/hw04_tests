@@ -28,6 +28,7 @@ class PostCreateFormTests(TestCase):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
+        self.user = User.objects.create_user(username='NoName')
 
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
@@ -42,7 +43,6 @@ class PostCreateFormTests(TestCase):
             content=small_gif,
             content_type='image/gif')
 
-        self.user = User.objects.create_user(username='NoName')
         self.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
