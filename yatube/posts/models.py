@@ -60,3 +60,16 @@ class Comment(PubDateModels):
     )
     text = models.TextField('Comment of post',
                             help_text='Enter a comment to the post')
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='follower',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        Post.author,
+        related_name='following',
+        on_delete=models.SET_NULL,
+    )
