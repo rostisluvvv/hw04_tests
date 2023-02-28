@@ -63,14 +63,16 @@ class Comment(PubDateModels):
 
 
 class Follow(models.Model):
+    # чел который подписывается
     user = models.ForeignKey(
         User,
         related_name='follower',
         on_delete=models.CASCADE
     )
+    # чел на которого подписываюсь
     author = models.ForeignKey(
-        Post,
+        User,
         related_name='following',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True
     )

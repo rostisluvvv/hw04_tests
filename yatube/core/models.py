@@ -10,4 +10,3 @@ class PubDateModels(models.Model):
 
     class Meta:
         abstract = True
-

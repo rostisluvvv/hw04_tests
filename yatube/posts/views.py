@@ -39,11 +39,15 @@ def profile(request, username):
     post_list = author.posts.all()
     count_posts = post_list.count()
     page_obj = pagination(request, post_list)
+    following = author.following.filter(user=request.user).exists()
+
     context = {
         'username': username,
         'author': author,
         'page_obj': page_obj,
         'count_posts': count_posts,
+        'following': following
+
     }
 
     return render(request, 'posts/profile.html', context)
@@ -110,7 +114,8 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    authors = Follow.objects.filter(user=request.user).values_list('author', flat=True)
+    authors = Follow.objects.filter(user=request.user).values_list('author',
+                                                                   flat=True)
     post_list = Post.objects.filter(author__in=authors)
     page_obj = pagination(request, post_list)
     context = {'page_obj': page_obj}
@@ -119,9 +124,21 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    pass
+    author = get_object_or_404(User, username=username)
+    is_subscribed = Follow.objects.filter(
+        user=request.user, author=author
+    ).exists()
+    if request.user != author and not is_subscribed:
+        Follow.objects.create(user=request.user, author=author)
+    return redirect('posts:profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
-    pass
+    author = get_object_or_404(User, username=username)
+    is_subscribed = Follow.objects.filter(
+        user=request.user, author=author
+    ).exists()
+    if request.user != author and is_subscribed:
+        Follow.objects.filter(user=request.user, author=author).delete()
+    return redirect('posts:profile', username=username)

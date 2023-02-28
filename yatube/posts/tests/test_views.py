@@ -8,7 +8,7 @@ from django.urls import reverse
 from django import forms
 from django.conf import settings
 
-from ..models import Post, Group, Comment
+from ..models import Post, Group, Comment, Follow
 from ..forms import PostForm
 
 
@@ -262,3 +262,62 @@ class PaginatorViewTest(TestCase):
             kwargs={'username': self.user.username}), params)
         self.assertEqual(len(response.context['page_obj']),
                          self.COUNT_POST_SECOND_PAGE)
+
+
+class FollowTests(TestCase):
+    COUNT_POST = 0
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+    def setUp(self) -> None:
+        self.user_following = User.objects.create_user(
+            username='user_following'
+        )
+        self.user_follower = User.objects.create_user(
+            username='user_follower'
+        )
+        self.client_following = Client()
+        self.client_follower = Client()
+        self.client_following.force_login(self.user_following)
+        self.client_follower.force_login(self.user_follower)
+
+        self.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test-slug',
+            description='Тестовое описание группы'
+        )
+        self.post = Post.objects.create(
+            author=self.user_following,
+            text='Тестовое описание поста',
+            group=self.group
+        )
+
+    def test_authorized_client_can_follow(self):
+        follow_count = Follow.objects.count()
+        self.client_follower.post(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.user_following.username}))
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
+
+    def test_authorized_client_can_unfollow(self):
+        follow_count = Follow.objects.count()
+        self.client_follower.post(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.user_following.username}))
+        self.assertEqual(Follow.objects.count(), follow_count)
+
+    def test_new_post_appears_in_subscribers(self):
+
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following
+        )
+        response = self.client_follower.post(reverse('posts:follow_index'))
+        self.assertEqual(response.context['page_obj'][0],
+                         self.post)
+
+        response = self.client_following.post(reverse('posts:follow_index'))
+        self.assertEqual(len(response.context['page_obj']),
+                         self.COUNT_POST)

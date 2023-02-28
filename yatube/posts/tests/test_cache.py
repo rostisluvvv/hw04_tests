@@ -1,22 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 from django.core.cache import cache
 
 from ..models import Post, Group
 
 User = get_user_model()
-
-"""
-- создал пост
-- загрузил главную, сохранил респонс
-- удалил пост
-- загрузил главную, сохранил респонс
-- проверил, что response.content у обоих одинаков
-- вручную очистил кэш через cache.clear()
-- загрузил главную, сохранил респонс
-- проверил, что контент изменился
-"""
 
 
 class CachePagesTests(TestCase):
